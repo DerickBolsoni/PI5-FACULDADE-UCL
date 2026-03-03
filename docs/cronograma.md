@@ -1,97 +1,84 @@
 ### Cronograma Detalhado – Waze dos Animais Abandonados 🐾
 
-Este documento descreve, semana a semana, o que será feito no projeto.
+Este documento descreve, semana a semana, o planejamento completo do projeto seguindo o calendário acadêmico oficial.
 
 ---
 
 ### Visão Geral do Cronograma
 
-| Data      | Etapa                      | Foco principal                                      |
-| --------- | -------------------------- | --------------------------------------------------- |
-| **10/fev** | Planejamento               | Definir tema, escopo inicial e tecnologias.        |
-| **24/fev** | Modelo do projeto          | Desenhar telas, modelar dados e organizar o repositório. |
-| **03/mar** | Primeira parte construída  | Subir documentação, iniciar frontend e mapa.       |
-| **10/mar** | Desenvolvimento – Parte 2  | Cadastro de animal + integração com Supabase.      |
-| **17/mar** | Refinamento e entrega      | Melhorias, filtros, publicação e preparação para apresentação. |
+| Data      | Etapa                          | Foco Principal                                           |
+| --------- | ------------------------------ | -------------------------------------------------------- |
+| **03/mar** | **Documentação Inicial** | Finalizar README, Requisitos e Cronograma atualizado.    |
+| **10/mar** | **Setup Frontend** | Estrutura React/Vite e componentes base da interface.    |
+| **17/mar** | **Integração do Mapa** | Implementar Leaflet ou Google Maps no frontend.          |
+| **24/mar** | **Backend e Banco** | Configuração do Supabase e modelagem das tabelas.        |
+| **31/mar** | **Cadastro (Parte 1)** | Formulário de registro de animais (Envio de texto).      |
+| **07/abr** | **Listagem (Parte 1)** | Exibição dos animais cadastrados em lista e no mapa.     |
+| **14/abr** | **Upload de Mídia** | Integração de fotos com o Supabase Storage.              |
+| **21/abr** | **(Feriado)** | Revisão técnica e ajustes de bugs acumulados.            |
+| **28/abr** | **UX e Status** | Implementar pins coloridos por nível de urgência.        |
+| **05/mai** | **Filtros e Busca** | Sistema de busca por urgência, data e localização.       |
+| **12/mai** | **Responsividade** | Ajustes finos para uso em dispositivos móveis (Rua).     |
+| **19/mai** | **Funcionalidades Extras** | Detalhes do animal e sistema de status "Encontrado".     |
+| **26/mai** | **Testes e QA** | Testes de usabilidade e correção final de falhas.        |
+| **02/jun** | **Deploy e Documentação** | Publicação oficial e manual de uso do sistema.           |
+| **09/jun** | **Entrega Final** | Apresentação oficial do projeto concluído.               |
 
 ---
 
-### 10/fev – Planejamento
+### 03/mar – Documentação Inicial (Situação Atual)
 
-| Item                      | Descrição                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------ |
-| **Definição do tema**    | Escolha do problema a ser resolvido: animais abandonados nas ruas.                        |
-| **Ideia central**        | Criar um “Waze dos animais abandonados” (mapa colaborativo de cães em situação de rua).  |
-| **Escopo inicial (MVP)** | Focar em: mapa interativo, cadastro de animal com foto + localização + urgência.         |
-| **Tecnologias**          | HTML, CSS, JavaScript, React, Supabase, biblioteca de mapa (Leaflet ou Google Maps).     |
-| **Tipo de sistema**      | Aplicação web responsiva, acessível tanto em desktop quanto em dispositivos móveis.      |
+| Item                            | Descrição                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Organização do Repositório** | Estruturação das pastas no GitHub conforme padrão do projeto.                               |
+| **Cronograma Atualizado** | Ajuste das datas conforme o calendário oficial fornecido pelo professor.                    |
+| **Levantamento de Requisitos** | Definição clara das funcionalidades que serão entregues até o final do semestre.            |
 
 ---
 
-### 24/fev – Modelo do Projeto
+### 10/mar a 17/mar – Frontend e Interface de Mapas
 
-| Item                              | Descrição                                                                                      |
-| --------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Protótipo de telas**           | Desenhar (no papel ou ferramenta) as telas: mapa inicial, cadastro de animal, lista de animais. |
-| **Fluxo principal do usuário**   | Usuário encontra animal → abre site → vê mapa → clica em “Registrar animal” → envia dados.    |
-| **Modelagem de dados (Supabase)** | Definir tabela `animais` com campos principais: `id`, `foto_url`, `descricao`, `nivel_urgencia`, `latitude`, `longitude`, `data_registro`. |
-| **Tabelas futuras (ideia)**      | Planejar possível `usuarios` (ONGs, protetores, pessoas comuns) e `interacoes` (comentários/atualizações). |
-| **Organização do repositório**   | Criar repositório no GitHub, subir README inicial, planejar pastas `docs/` e `frontend/`.     |
+| Item                            | Descrição                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Setup React/Vite (10/mar)** | Criação do projeto base, instalação de dependências e limpeza de arquivos desnecessários.   |
+| **Componentes Base (10/mar)** | Desenvolvimento do Header, Footer e estrutura de navegação principal.                       |
+| **Renderização do Mapa (17/mar)**| Implementação da biblioteca de mapas e centralização na região de interesse.                |
 
 ---
 
-### 03/mar – Primeira Parte Construída (Situação Atual Esperada)
+### 24/mar a 14/abr – Backend e Persistência de Dados
 
-| Item                                     | Descrição                                                                                               |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Documentação pronta e organizada**    | `README.md` com visão geral, tabelas e links para `docs/`.                                             |
-| **Arquivo `docs/cronograma.md`**        | Documento (este) com o cronograma detalhado, pronto para apresentação na faculdade.                    |
-| **Arquivo `docs/requisitos.md`**        | Descrição das funcionalidades, telas e regras básicas do sistema.                                      |
-| **Estrutura base do frontend (planejada)** | Decisão por Vite (ou CRA) e estruturação inicial da pasta `frontend/` (mesmo que ainda sem código final). |
-| **Visão do mapa**                       | Definição de qual biblioteca será usada (Leaflet ou Google Maps) e como o mapa será integrado ao React. |
-
-Sugestão para apresentação nesta data:
-
-- Mostrar o repositório GitHub [`PI5-FACULDADE-UCL`](https://github.com/DerickBolsoni/PI5-FACULDADE-UCL);
-- Apresentar o `README.md` com as tabelas;
-- Abrir este `cronograma.md` e explicar semana a semana;
-- Comentar rapidamente como o React, o mapa e o Supabase serão conectados.
+| Item                            | Descrição                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Banco de Dados (24/mar)** | Criação da tabela `animais` no Supabase com campos para coordenadas e urgência.             |
+| **Fluxo de Cadastro (31/mar)** | Desenvolvimento do formulário que permite salvar um novo animal no banco de dados.          |
+| **Pins Dinâmicos (07/abr)** | Lógica para ler os dados do banco e transformá-los em marcadores visuais no mapa.           |
+| **Gestão de Imagens (14/abr)** | Implementação do upload de fotos para o servidor de arquivos (Storage).                     |
 
 ---
 
-### 10/mar – Desenvolvimento (Parte 2)
+### 28/abr a 19/mai – Refinamento de UX e Funcionalidades
 
-| Item                              | Descrição                                                                                                  |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Projeto React funcional**      | Projeto criado na pasta `frontend/` com Vite ou CRA, rodando localmente.                                  |
-| **Componentes principais**       | `App`, `Header`, `Mapa`, `Footer`, e (se possível) um componente `CardAnimal` para exibir animais.        |
-| **Tela de mapa inicial**         | Página com mapa centralizado na região da cidade/faculdade, pronta para receber pins.                     |
-| **Cadastro de animal (frontend)** | Formulário/modal com campos: foto (upload), descrição, nível de urgência (🟢🟡🔴) e localização.          |
-| **Integração com Supabase (CRUD)** | Criar tabela `animais` no Supabase e implementar, no frontend, a criação e listagem básica de registros. |
-
-Ao final dessa semana, espera-se:
-
-- Conseguir **cadastrar um animal** pela interface;
-- Visualizar esses animais cadastrados **pelo menos em uma lista** (mesmo que os pins no mapa ainda estejam simples).
+| Item                            | Descrição                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Identidade Visual (28/abr)** | Criação dos pins coloridos: 🟢 Saudável, 🟡 Alerta, 🔴 Urgente.                             |
+| **Filtros Inteligentes (05/mai)**| Opção para o usuário visualizar apenas animais em situação crítica ou resgatados recentemente.|
+| **Mobile First (12/mai)** | Garantir que o botão de cadastro seja fácil de clicar em uma tela de celular.               |
+| **Encerramento de Caso (19/mai)**| Possibilidade de marcar o animal como "Resgatado", alterando seu estado no mapa.            |
 
 ---
 
-### 17/mar – Refinamento e Entrega
+### 26/mai a 09/jun – Finalização e Entrega
 
-| Item                                  | Descrição                                                                                                  |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **UX/UI e responsividade**           | Ajustar layout para mobile, melhorar espaçamentos, tipografia, cores e ícones.                            |
-| **Pins no mapa com status**          | Exibir pins com cores de acordo com o nível de urgência (🟢 saudável, 🟡 atenção, 🔴 urgente).             |
-| **Lista de animais próximos**        | Implementar uma lista (lateral ou tela separada) com animais ordenados por urgência e/ou distância.       |
-| **Filtros básicos**                  | Permitir filtrar por nível de urgência e, opcionalmente, por data.                                       |
-| **Publicação**                       | Fazer o build do projeto React e publicar em um host (por exemplo, um serviço de static hosting).         |
-| **Atualização da documentação**      | Atualizar `README.md` com prints das telas, instruções de uso e status final do que foi implementado.    |
-| **Preparação para apresentação final** | Organizar uma sequência de demonstração: abrir site, mostrar mapa, cadastrar animal, ver registro criado. |
+| Item                            | Descrição                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Bateria de Testes (26/mai)** | Simulação de múltiplos usuários usando o sistema simultaneamente para correção de erros.     |
+| **Deploy (02/jun)** | Hospedagem do site em link público (Vercel/Netlify) para avaliação do professor.            |
+| **Apresentação (09/jun)** | Demonstração ao vivo do "Waze dos Animais" funcionando de ponta a ponta.                    |
 
 ---
 
 ### Observações Finais
 
-- O cronograma pode ser ajustado conforme a evolução do time, mas **as datas e marcos principais** devem ser mantidos para a entrega acadêmica.
-- É importante que, a cada semana, o progresso seja **registrado com commits no GitHub** (mensagens de commit claras ajudam na avaliação).
-
+- O projeto segue a metodologia ágil, com commits frequentes para registrar o progresso semanal.
+- As datas podem sofrer pequenos ajustes caso ocorram imprevistos técnicos no desenvolvimento do backend.
