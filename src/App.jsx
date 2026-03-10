@@ -10,10 +10,8 @@ import { supabase } from "./lib/supabaseClient.js";
 function App() {
   const [animals, setAnimals] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentCenter, setCurrentCenter] = useState({
-    lat: -23.55052,
-    lng: -46.633308,
-  });
+  const [currentCenter, setCurrentCenter] = useState({ lat: -20.32, lng: -40.29 });
+  const [userLocation, setUserLocation] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formLocation, setFormLocation] = useState(null);
 
@@ -21,13 +19,12 @@ function App() {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setCurrentCenter({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(loc);
+          setCurrentCenter(loc);
         },
         () => {
-          // silenciosamente usa o fallback padrão
+          console.log("GPS negado ou indisponível. Usando centro padrão.");
         }
       );
     }
@@ -42,106 +39,65 @@ function App() {
 
       if (!error && data) {
         setAnimals(data);
-      } else {
-        // eslint-disable-next-line no-console
-        console.error("Erro ao buscar animais", error);
       }
     };
-
     fetchAnimals();
   }, []);
 
-  const handleOpenForm = () => {
-    setFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setFormOpen(false);
-  };
-
   const handleUseCurrentLocation = () => {
-    if (!("geolocation" in navigator)) {
-      alert("Geolocalização não suportada neste navegador.");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        };
-        setFormLocation(loc);
-        setCurrentCenter(loc);
-      },
-      () => {
-        alert("Não foi possível obter sua localização.");
-      }
-    );
+    if (!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      setUserLocation(loc);
+      setCurrentCenter(loc);
+    });
   };
 
   const handleMapClickLocation = (loc) => {
     setFormLocation(loc);
+    setFormOpen(true);
   };
 
-  const handleSubmitAnimal = async ({
-    nome,
-    descricao,
-    urgencia,
-    fotoFile,
-    lat,
-    lng,
-  }) => {
+  const handleSubmitAnimal = async (formData) => {
     try {
       setLoading(true);
-
       let foto_url = null;
 
-      if (fotoFile) {
-        const fileExt = fotoFile.name.split(".").pop();
-        const fileName = `${crypto.randomUUID()}.${fileExt}`;
-        const filePath = `animais/${fileName}`;
-
+      if (formData.fotoFile) {
+        const fileName = `${crypto.randomUUID()}.${formData.fotoFile.name.split(".").pop()}`;
         const { error: uploadError } = await supabase.storage
           .from("animais-fotos")
-          .upload(filePath, fotoFile);
+          .upload(`animais/${fileName}`, formData.fotoFile);
 
-        if (uploadError) {
-          throw uploadError;
-        }
+        if (uploadError) throw uploadError;
 
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("animais-fotos").getPublicUrl(filePath);
-
+        const { data: { publicUrl } } = supabase.storage
+          .from("animais-fotos")
+          .getPublicUrl(`animais/${fileName}`);
         foto_url = publicUrl;
       }
 
       const { data, error } = await supabase
         .from("animais")
-        .insert([
-          {
-            nome,
-            descricao,
-            urgencia,
-            foto_url,
-            lat,
-            lng,
-          },
-        ])
+        .insert([{
+          nome: formData.nome,
+          descricao: formData.descricao,
+          urgencia: formData.urgencia,
+          foto_url,
+          lat: formData.lat,
+          lng: formData.lng,
+        }])
         .select()
         .single();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       setAnimals((prev) => [data, ...prev]);
       setFormOpen(false);
       setFormLocation(null);
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error(err);
-      alert("Erro ao registrar animal. Tente novamente.");
+      alert("Erro ao salvar. Verifique sua conexão.");
     } finally {
       setLoading(false);
     }
@@ -155,36 +111,35 @@ function App() {
         <MapView
           animals={animals}
           onMapClickLocation={handleMapClickLocation}
+          userLocation={userLocation}
+          selectedLocation={formLocation}
           center={currentCenter}
         />
 
-        <aside className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 max-h-64 border-t border-slate-800 bg-slate-950/95 sm:inset-y-0 sm:right-0 sm:top-auto sm:bottom-0 sm:w-80 sm:border-l sm:border-t-0">
-          <div className="flex items-center justify-between px-4 pt-3">
+        {}
+        <aside className="pointer-events-auto absolute inset-x-0 top-4 z-10 mx-auto max-h-[40vh] w-[90%] overflow-hidden rounded-xl border border-slate-800 bg-slate-950/90 shadow-2xl backdrop-blur-md sm:right-4 sm:left-auto sm:top-4 sm:w-80 sm:max-h-[75vh]">
+          <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
             <div>
               <h2 className="text-sm font-semibold">Animais próximos</h2>
-              <p className="text-[11px] text-slate-400">
-                Lista dos registros recentes na região
-              </p>
+              <p className="text-[10px] text-slate-400">Clique no mapa para registrar</p>
             </div>
-            <span className="text-xs text-slate-400">
-              {animals.length}{" "}
-              {animals.length === 1 ? "animal" : "animais"}
+            <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-400">
+              {animals.length} {animals.length === 1 ? 'PET' : 'PETS'}
             </span>
           </div>
-          <div className="h-full overflow-y-auto pb-4">
+          <div className="h-full overflow-y-auto pb-10">
             <AnimalList animals={animals} />
           </div>
         </aside>
       </main>
 
-      <FloatingButton onClick={handleOpenForm} />
+      <FloatingButton onClick={() => setFormOpen(true)} />
       <LocateButton onClick={handleUseCurrentLocation} />
 
       <AnimalFormModal
         isOpen={formOpen}
-        onClose={handleCloseForm}
+        onClose={() => { setFormOpen(false); setFormLocation(null); }}
         onSubmit={handleSubmitAnimal}
-        onRequestLocation={handleUseCurrentLocation}
         defaultLocation={formLocation}
         loading={loading}
       />
@@ -193,4 +148,3 @@ function App() {
 }
 
 export default App;
-

@@ -48,10 +48,23 @@ export function AnimalList({ animals }) {
                 {urgencyText[animal.urgencia] || "Indefinido"}
               </span>
             </div>
+            
             <p className="line-clamp-2 text-xs text-slate-300">
               {animal.descricao}
             </p>
-            <p className="text-[10px] text-slate-500">
+
+            {}
+            <div className="flex items-center gap-2 text-[9px] font-mono text-slate-500">
+              <span className="flex items-center gap-0.5">
+                <span className="text-blue-400/70 font-bold">LAT:</span> {animal.lat?.toFixed(5)}
+              </span>
+              <span className="opacity-30">|</span>
+              <span className="flex items-center gap-0.5">
+                <span className="text-blue-400/70 font-bold">LNG:</span> {animal.lng?.toFixed(5)}
+              </span>
+            </div>
+
+            <p className="text-[10px] text-slate-500 pt-1">
               {animal.criado_em
                 ? new Date(animal.criado_em).toLocaleString("pt-BR")
                 : ""}
@@ -62,4 +75,3 @@ export function AnimalList({ animals }) {
     </div>
   );
 }
-
