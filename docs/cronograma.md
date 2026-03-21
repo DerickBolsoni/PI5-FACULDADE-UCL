@@ -8,8 +8,9 @@ Este documento descreve, semana a semana, o planejamento completo do projeto seg
 
 | Data      | Etapa                          | Foco Principal                                           |
 | --------- | ------------------------------ | -------------------------------------------------------- |
-| **03/mar** | **Documentação Inicial** | Finalizar README, Requisitos e Cronograma atualizado.    |
-| **10/mar** | **Setup Frontend** | Estrutura React/Vite e componentes base da interface.    |
+| **24/fev** | **Documentação Inicial** | Finalizar README, Requisitos e Cronograma atualizado.    |
+| **03/mar** | **Setup Frontend** | Estrutura React/Vite e componentes base da interface.   |
+| **10/mar** | **Setup Frontend** | Desenvolvimento do Header, Footer e estrutura de navegação principal.    |
 | **17/mar** | **Integração do Mapa** | Implementar Leaflet ou Google Maps no frontend.          |
 | **24/mar** | **Backend e Banco** | Configuração do Supabase e modelagem das tabelas.        |
 | **31/mar** | **Cadastro (Parte 1)** | Formulário de registro de animais (Envio de texto).      |
@@ -26,7 +27,7 @@ Este documento descreve, semana a semana, o planejamento completo do projeto seg
 
 ---
 
-### 03/mar – Documentação Inicial (Situação Atual)
+### 24/fev – Documentação Inicial (Situação Atual)
 
 | Item                            | Descrição                                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -36,7 +37,7 @@ Este documento descreve, semana a semana, o planejamento completo do projeto seg
 
 ---
 
-### 10/mar a 17/mar – Frontend e Interface de Mapas
+### 03/mar a 17/mar – Frontend e Interface de Mapas
 
 | Item                            | Descrição                                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------------------------- |
