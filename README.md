@@ -130,7 +130,7 @@ Esta seção resume o que foi desenvolvido na aplicação web (`frontend/`) para
     - Descrição (obrigatória).
     - Seleção de urgência.
     - Seleção de localização (minha localização ou clique no mapa).
-  - Upload de foto para bucket `animais-fotos` no Supabase Storage e gravação do `foto_url` na tabela `animais`.
+  - Upload de foto para bucket `animais_fotos` no Supabase Storage e gravação do `foto_url` na tabela `animais`.
   - Inserção na tabela `animais` com campos: `nome`, `descricao`, `urgencia`, `foto_url`, `lat`, `lng`, `criado_em`.
 
 - **Lista de animais próximos**
@@ -279,7 +279,7 @@ Esta seção resume o que foi desenvolvido na aplicação web (`frontend/`) para
     - Descrição (obrigatória).
     - Seleção de urgência.
     - Seleção de localização (minha localização ou clique no mapa).
-  - Upload de foto para bucket `animais-fotos` no Supabase Storage e gravação do `foto_url` na tabela `animais`.
+  - Upload de foto para bucket `animais_fotos` no Supabase Storage e gravação do `foto_url` na tabela `animais`.
   - Inserção na tabela `animais` com campos: `nome`, `descricao`, `urgencia`, `foto_url`, `lat`, `lng`, `criado_em`.
 
 - **Lista de animais próximos**

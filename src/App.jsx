@@ -5,6 +5,7 @@ import { AnimalList } from "./components/AnimalList.jsx";
 import { FloatingButton } from "./components/FloatingButton.jsx";
 import { LocateButton } from "./components/LocateButton.jsx";
 import { AnimalFormModal } from "./components/AnimalFormModal.jsx";
+import { AllAnimalsModal } from "./components/AllAnimalsModal.jsx";
 import { supabase } from "./lib/supabaseClient.js";
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
   const [userLocation, setUserLocation] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [formLocation, setFormLocation] = useState(null);
+  const [allAnimalsOpen, setAllAnimalsOpen] = useState(false);
+  const [heatmapEnabled, setHeatmapEnabled] = useState(false);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -58,6 +61,11 @@ function App() {
     setFormOpen(true);
   };
 
+  const handleSelectAnimalOnMap = (animal) => {
+    if (!animal?.lat || !animal?.lng) return;
+    setCurrentCenter({ lat: animal.lat, lng: animal.lng });
+  };
+
   const handleSubmitAnimal = async (formData) => {
     try {
       setLoading(true);
@@ -66,13 +74,13 @@ function App() {
       if (formData.fotoFile) {
         const fileName = `${crypto.randomUUID()}.${formData.fotoFile.name.split(".").pop()}`;
         const { error: uploadError } = await supabase.storage
-          .from("animais-fotos")
+          .from("animais_fotos")
           .upload(`animais/${fileName}`, formData.fotoFile);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from("animais-fotos")
+          .from("animais_fotos")
           .getPublicUrl(`animais/${fileName}`);
         foto_url = publicUrl;
       }
@@ -105,7 +113,11 @@ function App() {
 
   return (
     <div className="flex h-screen flex-col bg-slate-950 text-slate-50">
-      <Navbar />
+      <Navbar
+        onOpenAllAnimals={() => setAllAnimalsOpen(true)}
+        heatmapEnabled={heatmapEnabled}
+        onToggleHeatmap={() => setHeatmapEnabled((prev) => !prev)}
+      />
 
       <main className="relative min-h-0 flex-1 overflow-hidden">
         <MapView
@@ -114,6 +126,7 @@ function App() {
           userLocation={userLocation}
           selectedLocation={formLocation}
           center={currentCenter}
+          heatmapEnabled={heatmapEnabled}
         />
 
         {}
@@ -128,7 +141,10 @@ function App() {
             </span>
           </div>
           <div className="h-full overflow-y-auto pb-10">
-            <AnimalList animals={animals} />
+            <AnimalList
+              animals={animals}
+              onSelectAnimal={handleSelectAnimalOnMap}
+            />
           </div>
         </aside>
       </main>
@@ -142,6 +158,13 @@ function App() {
         onSubmit={handleSubmitAnimal}
         defaultLocation={formLocation}
         loading={loading}
+      />
+
+      <AllAnimalsModal
+        isOpen={allAnimalsOpen}
+        onClose={() => setAllAnimalsOpen(false)}
+        animals={animals}
+        onSelectAnimal={handleSelectAnimalOnMap}
       />
     </div>
   );

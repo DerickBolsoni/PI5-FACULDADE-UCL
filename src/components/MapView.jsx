@@ -8,6 +8,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { useEffect, useMemo } from "react";
+import "leaflet.heat";
 import "leaflet/dist/leaflet.css";
 
 const iconColors = {
@@ -38,6 +39,11 @@ function createCircleIcon(color, isUser = false) {
   });
 }
 
+function buildGoogleMapsRouteUrl(lat, lng) {
+  const destination = `${lat},${lng}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+}
+
 
 function ClickHandler({ onSelectLocation }) {
   useMapEvents({
@@ -64,12 +70,48 @@ function RecenterOnLocation({ center }) {
   return null;
 }
 
+function HeatmapLayer({ animals, enabled }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!enabled || !animals?.length) return undefined;
+    const points = animals
+      .filter((animal) => animal?.lat && animal?.lng)
+      .map((animal) => [
+        animal.lat,
+        animal.lng,
+        animal.urgencia === "high" ? 1 : animal.urgencia === "medium" ? 0.7 : 0.45,
+      ]);
+
+    if (!points.length) return undefined;
+    const layer = L.heatLayer(points, {
+      radius: 28,
+      blur: 18,
+      maxZoom: 17,
+      minOpacity: 0.35,
+      gradient: {
+        0.2: "#22c55e",
+        0.45: "#eab308",
+        0.8: "#f97316",
+        1.0: "#ef4444",
+      },
+    }).addTo(map);
+
+    return () => {
+      map.removeLayer(layer);
+    };
+  }, [map, animals, enabled]);
+
+  return null;
+}
+
 export function MapView({
   animals,
   onMapClickLocation,
   userLocation,      
   selectedLocation,  
   center,            
+  heatmapEnabled,
   initialZoom = 13,
 }) {
   const userIcon = useMemo(() => createCircleIcon(iconColors.user, true), []);
@@ -91,6 +133,7 @@ export function MapView({
         {}
         <RecenterOnLocation center={center} />
         <ClickHandler onSelectLocation={onMapClickLocation} />
+        <HeatmapLayer animals={animals} enabled={heatmapEnabled} />
 
         {}
         {userLocation && (
@@ -126,6 +169,20 @@ export function MapView({
                 }`}>
                   Urgência: {animal.urgencia}
                 </div>
+                <a
+                  href={buildGoogleMapsRouteUrl(animal.lat, animal.lng)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`mt-1 inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold ${
+                    animal.urgencia === "high"
+                      ? "border-red-500/40 text-red-600"
+                      : animal.urgencia === "medium"
+                        ? "border-amber-500/40 text-amber-600"
+                        : "border-emerald-500/40 text-emerald-600"
+                  }`}
+                >
+                  Me levar até lá
+                </a>
               </div>
             </Popup>
           </Marker>

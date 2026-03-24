@@ -10,7 +10,20 @@ const urgencyColor = {
   high: "bg-red-500/20 text-red-300 border-red-500/40",
 };
 
-export function AnimalList({ animals }) {
+const routeButtonColor = {
+  low: "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10",
+  medium: "border-amber-500/40 text-amber-300 hover:bg-amber-500/10",
+  high: "border-red-500/40 text-red-300 hover:bg-red-500/10",
+};
+
+function openGoogleMapsRoute(animal) {
+  if (!animal?.lat || !animal?.lng) return;
+  const destination = `${animal.lat},${animal.lng}`;
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+export function AnimalList({ animals, onSelectAnimal }) {
   if (!animals?.length) {
     return (
       <div className="px-4 py-3 text-sm text-slate-400">
@@ -69,6 +82,25 @@ export function AnimalList({ animals }) {
                 ? new Date(animal.criado_em).toLocaleString("pt-BR")
                 : ""}
             </p>
+
+            {onSelectAnimal && (
+              <div className="mt-1 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => onSelectAnimal(animal)}
+                  className="inline-flex rounded-md border border-slate-700 px-2 py-1 text-[10px] font-semibold text-slate-200 hover:border-emerald-500 hover:text-emerald-300"
+                >
+                  Ver no mapa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openGoogleMapsRoute(animal)}
+                  className={`inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold ${routeButtonColor[animal.urgencia] || "border-blue-500/40 text-blue-300 hover:bg-blue-500/10"}`}
+                >
+                  Me levar ate la
+                </button>
+              </div>
+            )}
           </div>
         </article>
       ))}
