@@ -5,7 +5,7 @@ export function AllAnimalsModal({ isOpen, onClose, animals, onSelectAnimal }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm">
       <div className="flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>

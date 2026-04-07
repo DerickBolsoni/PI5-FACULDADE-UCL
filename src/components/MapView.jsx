@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.heat";
 import L from "leaflet";
 function HeatLayer({ points, enabled }) {
   const map = useMap();

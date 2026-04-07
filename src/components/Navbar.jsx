@@ -1,4 +1,5 @@
 import { Flame, LayoutDashboard, List, Moon, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Navbar({ onOpenAllAnimals, heatmapEnabled, onToggleHeatmap, darkMap, onToggleDarkMap }) {
   return (
@@ -29,13 +30,13 @@ export function Navbar({ onOpenAllAnimals, heatmapEnabled, onToggleHeatmap, dark
           <List className="h-3.5 w-3.5" />
         </button>
 
-        <a
-          href="/admin"
+        <Link
+          to="/admin"
           className="flex items-center gap-1 rounded-md bg-violet-500/15 px-2 py-1.5 text-[11px] font-semibold text-violet-300 transition hover:bg-violet-500/25"
           title="Admin Center"
         >
           <LayoutDashboard className="h-3.5 w-3.5" />
-        </a>
+        </Link>
 
         <button
           type="button"
