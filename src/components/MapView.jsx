@@ -32,13 +32,14 @@ function HeatLayer({ points, enabled }) {
 }
 
 function MapClickHandler({ onMapClick }) {
-  const map = useMap();
-
   useMapEvents({
     click(e) {
-      if (onMapClick) {
-        onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
-      }
+      if (!onMapClick || !e?.latlng) return;
+      onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
+    },
+    contextmenu(e) {
+      if (!onMapClick || !e?.latlng) return;
+      onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
 

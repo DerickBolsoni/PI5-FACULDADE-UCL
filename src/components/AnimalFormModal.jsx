@@ -53,7 +53,7 @@ export function AnimalFormModal({ isOpen, onClose, onSubmit, defaultLocation, lo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm">
       <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>

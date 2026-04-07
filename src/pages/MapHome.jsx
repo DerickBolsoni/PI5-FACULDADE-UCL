@@ -6,7 +6,7 @@ import { FloatingButton } from "../components/FloatingButton.jsx";
 import { LocateButton } from "../components/LocateButton.jsx";
 import { AnimalFormModal } from "../components/AnimalFormModal.jsx";
 import { AllAnimalsModal } from "../components/AllAnimalsModal.jsx";
-import { supabase } from "../lib/supabaseClient.js";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient.js";
 
 export function MapHome() {
   const [animals, setAnimals] = useState([]);
@@ -37,6 +37,7 @@ export function MapHome() {
 
   useEffect(() => {
     const fetchAnimals = async () => {
+      if (!isSupabaseConfigured || !supabase) return;
       const { data, error } = await supabase
         .from("animais")
         .select("*")
@@ -69,6 +70,10 @@ export function MapHome() {
   };
 
   const handleSubmitAnimal = async (formData) => {
+    if (!isSupabaseConfigured || !supabase) {
+      alert("Supabase não configurado. Crie o arquivo .env.local para salvar.");
+      return;
+    }
     try {
       setLoading(true);
       let foto_url = null;

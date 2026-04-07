@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   Trash2,
 } from "lucide-react";
-import { supabase } from "../lib/supabaseClient.js";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient.js";
 
 const urgencyMeta = {
   low: { label: "Saudável / Observação", bar: "bg-emerald-500", text: "text-emerald-300" },
@@ -59,6 +59,12 @@ export function AdminCenter() {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
+    if (!isSupabaseConfigured || !supabase) {
+      setError("Supabase não configurado. Defina as variáveis no .env.local.");
+      setAnimals([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     const { data, error: fetchError } = await supabase
@@ -80,6 +86,10 @@ export function AdminCenter() {
   }, [load]);
 
   const removeAnimal = useCallback(async (row) => {
+    if (!isSupabaseConfigured) {
+      alert("Supabase não configurado.");
+      return;
+    }
     if (!confirm(`Remover "${row.nome || "sem nome"}"?`)) return;
     const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/animais?id=eq.${encodeURIComponent(row.id)}`;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
