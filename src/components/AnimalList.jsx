@@ -16,14 +16,23 @@ const routeButtonColor = {
   high: "border-red-500/40 text-red-300 hover:bg-red-500/10",
 };
 
-function openGoogleMapsRoute(animal) {
-  if (!animal?.lat || !animal?.lng) return;
-  const destination = `${animal.lat},${animal.lng}`;
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+function isCollectedAnimal(animal) {
+  return Boolean(
+    animal?.coletado ||
+      animal?.status === "coletado" ||
+      animal?.coletado_em ||
+      animal?.coleta_foto_url ||
+      animal?.foto_coleta_url
+  );
 }
 
-export function AnimalList({ animals, onSelectAnimal }) {
+export function AnimalList({
+  animals,
+  onSelectAnimal,
+  onRouteToAnimal,
+  onOpenExternalNavigation,
+  onCollectAnimal,
+}) {
   if (!animals?.length) {
     return (
       <div className="px-4 py-3 text-sm text-slate-400">
@@ -35,6 +44,9 @@ export function AnimalList({ animals, onSelectAnimal }) {
   return (
     <div className="space-y-3 px-4 py-3">
       {animals.map((animal) => (
+        (() => {
+          const collected = isCollectedAnimal(animal);
+          return (
         <article
           key={animal.id}
           className="flex gap-3 rounded-xl border border-slate-800 bg-slate-900/80 p-3 shadow-sm"
@@ -61,6 +73,11 @@ export function AnimalList({ animals, onSelectAnimal }) {
                 {urgencyText[animal.urgencia] || "Indefinido"}
               </span>
             </div>
+            {collected && (
+              <span className="inline-flex w-fit rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                Coletado
+              </span>
+            )}
 
             <p className="line-clamp-2 text-xs text-slate-300">
               {animal.descricao}
@@ -84,16 +101,34 @@ export function AnimalList({ animals, onSelectAnimal }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => openGoogleMapsRoute(animal)}
+                    onClick={() => onRouteToAnimal?.(animal)}
+                    disabled={collected}
                     className={`inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold ${routeButtonColor[animal.urgencia] || "border-blue-500/40 text-blue-300 hover:bg-blue-500/10"}`}
                   >
-                    Me levar ate la
+                    Iniciar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onOpenExternalNavigation?.(animal)}
+                    className="inline-flex rounded-md border border-cyan-500/40 px-2 py-1 text-[10px] font-semibold text-cyan-300 hover:bg-cyan-500/10"
+                  >
+                    Navegar no Waze
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onCollectAnimal?.(animal)}
+                    disabled={collected}
+                    className="inline-flex rounded-md border border-emerald-500/40 px-2 py-1 text-[10px] font-semibold text-emerald-300 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {collected ? "Coletado" : "Marcar coletado"}
                   </button>
                 </>
               )}
             </div>
           </div>
         </article>
+          );
+        })()
       ))}
     </div>
   );

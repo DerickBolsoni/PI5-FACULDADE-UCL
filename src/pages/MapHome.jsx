@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navbar } from "../components/Navbar.jsx";
 import { MapView } from "../components/MapView.jsx";
 import { AnimalList } from "../components/AnimalList.jsx";
@@ -6,7 +6,17 @@ import { FloatingButton } from "../components/FloatingButton.jsx";
 import { LocateButton } from "../components/LocateButton.jsx";
 import { AnimalFormModal } from "../components/AnimalFormModal.jsx";
 import { AllAnimalsModal } from "../components/AllAnimalsModal.jsx";
+import { RouteOriginModal } from "../components/RouteOriginModal.jsx";
+import { CollectAnimalModal } from "../components/CollectAnimalModal.jsx";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient.js";
+
+function getLocationFromPosition(position) {
+  return {
+    lat: position.coords.latitude,
+    lng: position.coords.longitude,
+    speed: Number.isFinite(position.coords.speed) ? position.coords.speed : null,
+  };
+}
 
 export function MapHome() {
   const [animals, setAnimals] = useState([]);
@@ -19,12 +29,20 @@ export function MapHome() {
   const [heatmapEnabled, setHeatmapEnabled] = useState(false);
   const [darkMap, setDarkMap] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [routeTarget, setRouteTarget] = useState(null);
+  const [routeModeActive, setRouteModeActive] = useState(false);
+  const [routeOriginModalOpen, setRouteOriginModalOpen] = useState(false);
+  const [pendingRouteAnimal, setPendingRouteAnimal] = useState(null);
+  const [collectModalOpen, setCollectModalOpen] = useState(false);
+  const [collectAnimalTarget, setCollectAnimalTarget] = useState(null);
+  const [collectLoading, setCollectLoading] = useState(false);
+  const routeWatchIdRef = useRef(null);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          const loc = getLocationFromPosition(pos);
           setUserLocation(loc);
           setCurrentCenter(loc);
         },
@@ -34,6 +52,32 @@ export function MapHome() {
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (!routeModeActive || !("geolocation" in navigator)) {
+      if (routeWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(routeWatchIdRef.current);
+        routeWatchIdRef.current = null;
+      }
+      return;
+    }
+
+    routeWatchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const liveLoc = getLocationFromPosition(pos);
+        setUserLocation(liveLoc);
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 4000 }
+    );
+
+    return () => {
+      if (routeWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(routeWatchIdRef.current);
+        routeWatchIdRef.current = null;
+      }
+    };
+  }, [routeModeActive]);
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -53,7 +97,7 @@ export function MapHome() {
   const handleUseCurrentLocation = () => {
     if (!("geolocation" in navigator)) return;
     navigator.geolocation.getCurrentPosition((pos) => {
-      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const loc = getLocationFromPosition(pos);
       setUserLocation(loc);
       setCurrentCenter(loc);
     });
@@ -67,6 +111,162 @@ export function MapHome() {
   const handleSelectAnimalOnMap = (animal) => {
     if (!animal?.lat || !animal?.lng) return;
     setCurrentCenter({ lat: animal.lat, lng: animal.lng });
+  };
+
+  const handleRouteToAnimal = (animal) => {
+    if (!animal?.lat || !animal?.lng) return;
+
+    const setRoute = (originLocation) => {
+      setRouteModeActive(true);
+      setUserLocation(originLocation);
+      setRouteTarget({
+        id: animal.id,
+        lat: animal.lat,
+        lng: animal.lng,
+        nome: animal.nome,
+      });
+      setCurrentCenter({
+        lat: (originLocation.lat + animal.lat) / 2,
+        lng: (originLocation.lng + animal.lng) / 2,
+      });
+    };
+
+    if (userLocation?.lat && userLocation?.lng) {
+      setRoute(userLocation);
+      return;
+    }
+
+    if (!("geolocation" in navigator)) {
+      setPendingRouteAnimal(animal);
+      setRouteOriginModalOpen(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = getLocationFromPosition(pos);
+        setRoute(loc);
+      },
+      () => {
+        setPendingRouteAnimal(animal);
+        setRouteOriginModalOpen(true);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
+  const handleOpenExternalNavigation = (animal) => {
+    if (!animal?.lat || !animal?.lng) return;
+    const destination = `${animal.lat},${animal.lng}`;
+    const wazeUrl = `https://www.waze.com/ul?ll=${encodeURIComponent(destination)}&navigate=yes`;
+    window.open(wazeUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleConfirmManualOrigin = (origin) => {
+    if (!pendingRouteAnimal?.lat || !pendingRouteAnimal?.lng) {
+      setRouteOriginModalOpen(false);
+      return;
+    }
+
+    const loc = { lat: origin.lat, lng: origin.lng };
+    setUserLocation(loc);
+    setRouteModeActive(true);
+    setRouteTarget({
+      id: pendingRouteAnimal.id,
+      lat: pendingRouteAnimal.lat,
+      lng: pendingRouteAnimal.lng,
+      nome: pendingRouteAnimal.nome,
+    });
+    setCurrentCenter({
+      lat: (loc.lat + pendingRouteAnimal.lat) / 2,
+      lng: (loc.lng + pendingRouteAnimal.lng) / 2,
+    });
+    setRouteOriginModalOpen(false);
+    setPendingRouteAnimal(null);
+  };
+
+  const handleExitRouteMode = () => {
+    setRouteModeActive(false);
+    setRouteTarget(null);
+  };
+
+  const handleOpenCollectModal = (animal) => {
+    if (!animal?.id) return;
+    setCollectAnimalTarget(animal);
+    setCollectModalOpen(true);
+  };
+
+  const handleConfirmCollected = async (photoFile) => {
+    if (!collectAnimalTarget?.id || !photoFile || !supabase) return;
+
+    try {
+      setCollectLoading(true);
+
+      const fileName = `${crypto.randomUUID()}.${photoFile.name.split(".").pop()}`;
+      const uploadPath = `coletas/${collectAnimalTarget.id}/${fileName}`;
+      const { error: uploadError } = await supabase.storage
+        .from("animais_fotos")
+        .upload(uploadPath, photoFile);
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("animais_fotos").getPublicUrl(uploadPath);
+
+      const collectedAt = new Date().toISOString();
+      let updatedRow = null;
+
+      const firstUpdate = await supabase
+        .from("animais")
+        .update({
+          status: "coletado",
+          coletado: true,
+          coletado_em: collectedAt,
+          coleta_foto_url: publicUrl,
+        })
+        .eq("id", collectAnimalTarget.id)
+        .select()
+        .single();
+
+      if (!firstUpdate.error && firstUpdate.data) {
+        updatedRow = firstUpdate.data;
+      } else {
+        const previousDescription = collectAnimalTarget.descricao || "";
+        const collectNote = `[COLETADO em ${new Date(collectedAt).toLocaleString("pt-BR")}] Foto: ${publicUrl}`;
+        const descriptionWithNote = previousDescription.includes("[COLETADO")
+          ? previousDescription
+          : `${previousDescription}${previousDescription ? "\n\n" : ""}${collectNote}`;
+
+        const fallbackUpdate = await supabase
+          .from("animais")
+          .update({
+            descricao: descriptionWithNote,
+          })
+          .eq("id", collectAnimalTarget.id)
+          .select()
+          .single();
+
+        if (fallbackUpdate.error) throw fallbackUpdate.error;
+        updatedRow = {
+          ...fallbackUpdate.data,
+          status: "coletado",
+          coletado: true,
+          coletado_em: collectedAt,
+          coleta_foto_url: publicUrl,
+        };
+      }
+
+      setAnimals((prev) =>
+        prev.map((animal) => (animal.id === collectAnimalTarget.id ? { ...animal, ...updatedRow } : animal))
+      );
+      setCollectModalOpen(false);
+      setCollectAnimalTarget(null);
+    } catch (error) {
+      console.error(error);
+      alert("Nao foi possivel confirmar a coleta. Verifique a conexao e as permissoes do banco.");
+    } finally {
+      setCollectLoading(false);
+    }
   };
 
   const handleSubmitAnimal = async (formData) => {
@@ -137,13 +337,15 @@ export function MapHome() {
           center={currentCenter}
           heatmapEnabled={heatmapEnabled}
           darkMap={darkMap}
+          routeTarget={routeTarget}
+          routeModeActive={routeModeActive}
         />
         <aside
           className={`
             pointer-events-auto
             absolute
             bottom-0 left-0 right-0
-            z-10
+            z-[1200]
             flex flex-col
             transition-all duration-300
             ${expanded ? "h-[70vh]" : "h-auto max-h-[20vh]"}
@@ -188,10 +390,28 @@ export function MapHome() {
             <AnimalList
               animals={animals}
               onSelectAnimal={handleSelectAnimalOnMap}
+              onRouteToAnimal={handleRouteToAnimal}
+              onOpenExternalNavigation={handleOpenExternalNavigation}
+              onCollectAnimal={handleOpenCollectModal}
             />
             <div className="h-28 sm:hidden" />
           </div>
         </aside>
+
+        {routeModeActive && (
+          <div className="pointer-events-none absolute left-3 top-3 z-[1400]">
+            <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-lg">
+              <span className="text-xs font-semibold text-emerald-300">Modo rota ativo</span>
+              <button
+                type="button"
+                onClick={handleExitRouteMode}
+                className="rounded-md border border-slate-600 px-2 py-1 text-[11px] font-semibold text-slate-200 hover:bg-slate-800"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       <FloatingButton onClick={() => setFormOpen(true)} />
@@ -210,6 +430,29 @@ export function MapHome() {
         onClose={() => setAllAnimalsOpen(false)}
         animals={animals}
         onSelectAnimal={handleSelectAnimalOnMap}
+        onCollectAnimal={handleOpenCollectModal}
+      />
+
+      <RouteOriginModal
+        isOpen={routeOriginModalOpen}
+        destinationName={pendingRouteAnimal?.nome}
+        onClose={() => {
+          setRouteOriginModalOpen(false);
+          setPendingRouteAnimal(null);
+        }}
+        onConfirmLocation={handleConfirmManualOrigin}
+      />
+
+      <CollectAnimalModal
+        isOpen={collectModalOpen}
+        animal={collectAnimalTarget}
+        loading={collectLoading}
+        onClose={() => {
+          if (collectLoading) return;
+          setCollectModalOpen(false);
+          setCollectAnimalTarget(null);
+        }}
+        onConfirm={handleConfirmCollected}
       />
     </div>
   );

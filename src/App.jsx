@@ -4,7 +4,7 @@ import { AdminCenter } from "./pages/AdminCenter.jsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <MapHome /> },
-  { path: "/admin", element: <AdminCenter /> },
+  { path: "/admincenter", element: <AdminCenter /> },
 ]);
 
 export function App() {

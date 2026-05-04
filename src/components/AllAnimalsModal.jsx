@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { AnimalList } from "./AnimalList.jsx";
 
-export function AllAnimalsModal({ isOpen, onClose, animals, onSelectAnimal }) {
+export function AllAnimalsModal({ isOpen, onClose, animals, onSelectAnimal, onCollectAnimal }) {
   if (!isOpen) return null;
 
   return (
@@ -30,6 +30,7 @@ export function AllAnimalsModal({ isOpen, onClose, animals, onSelectAnimal }) {
               onSelectAnimal(animal);
               onClose();
             }}
+            onCollectAnimal={onCollectAnimal}
           />
         </div>
       </div>
